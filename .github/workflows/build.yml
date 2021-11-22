@@ -52,20 +52,20 @@ jobs:
           mv index-bot/build/libs/telegram-index-bot-2.0.0.jar ~/rpmbuild/BUILD/bot/
           mv index-bot/src/main/resources/application.yaml ~/rpmbuild/BUILD/bot/
           
-          mv resource/elasticsearch-7.15.2-linux-x86_64.tar.gz ~/BUILD/
-          mv resource/elasticsearch-analysis-ik-7.15.2.zip ~/BUILD/
-          mv resource/jdk-11.0.12_linux-x64_bin.tar.gz ~/BUILD/
+          mv resource/elasticsearch-7.15.2-linux-x86_64.tar.gz ~/rpmbuild/BUILD/
+          mv resource/elasticsearch-analysis-ik-7.15.2.zip ~/rpmbuild/BUILD/
+          mv resource/jdk-11.0.12_linux-x64_bin.tar.gz ~/rpmbuild/BUILD/
           
-          mv package/index-bot-elasticsearch.service ~/BUILD/
-          mv package/index-bot.service ~/BUILD/
+          mv package/index-bot-elasticsearch.service ~/rpmbuild/BUILD/
+          mv package/index-bot.service ~/rpmbuild/BUILD/
           
           mv package/build.spec ~/rpmbuild/SPECS/
           mv package/ReadMe.md
           
-          echo "~/BUILD/"
-          ls ~/BUILD/
-          echo "~/BUILD/bot"
-          ls ~/BUILD/bot
+          echo "~/rpmbuild/BUILD/"
+          ls ~/rpmbuild/BUILD/
+          echo "~/rpmbuild/BUILD/bot"
+          ls ~/rpmbuild/BUILD/bot
       
       - name: RPM Build
         run: |
