@@ -22,12 +22,6 @@ jobs:
           java-version: "11"
           distribution: "adopt"
 
-      - name: Build with Gradle
-        run: |
-          cd index-bot
-          chmod +x gradlew
-          ./gradlew bootJar
-
       # 下载资源文件
       # java: https://cloud.scomarlf.com/s/g0UW?path=%2F
       - name: Download resource
@@ -36,16 +30,47 @@ jobs:
           cd resource
           curl -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.15.2-linux-x86_64.tar.gz
           curl -O https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.15.2/elasticsearch-analysis-ik-7.15.2.zip
-          wget https://cloud.scomarlf.com/api/v3/file/get/88/jdk-11.0.12_linux-x64_bin.tar.gz?sign=qPVwbwDWfM7TNCmZa3Qt9pimJ6dtFaitkn-T2yOgIUA%3D%3A0 --no-check-certificate -O ./java11.tar.gz
+          wget https://cloud.scomarlf.com/api/v3/file/get/88/jdk-11.0.12_linux-x64_bin.tar.gz?sign=qPVwbwDWfM7TNCmZa3Qt9pimJ6dtFaitkn-T2yOgIUA%3D%3A0 --no-check-certificate -O ./jdk-11.0.12_linux-x64_bin.tar.gz
           ls
 
+      - name: Build with Gradle
+        run: |
+          cd index-bot
+          chmod +x gradlew
+          ./gradlew bootJar
+          
+      - name: RPM Ready
+        run: |
+          rm -rf ~/rpmbuild
+          mkdir -pv ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
+          
       - name: Move files
         run: |
-          mkdir -p artifacts
-          mv package/lang artifacts/
-          mv package/data artifacts/
-          mv index-bot/build/libs/telegram-index-bot-2.0.0.jar artifacts/
-          mv index-bot/src/main/resources/application.properties artifacts/
+          mkdir -p ~/rpmbuild/BUILD/bot
+          mv package/lang ~/rpmbuild/BUILD/bot/
+          mv package/data ~/rpmbuild/BUILD/bot/
+          mv index-bot/build/libs/telegram-index-bot-2.0.0.jar ~/rpmbuild/BUILD/bot/
+          mv index-bot/src/main/resources/application.yaml ~/rpmbuild/BUILD/bot/
+          
+          mv resource/elasticsearch-7.15.2-linux-x86_64.tar.gz ~/BUILD/
+          mv resource/elasticsearch-analysis-ik-7.15.2.zip ~/BUILD/
+          mv resource/jdk-11.0.12_linux-x64_bin.tar.gz ~/BUILD/
+          
+          mv package/index-bot-elasticsearch.service ~/BUILD/
+          mv package/index-bot.service ~/BUILD/
+          
+          mv package/build.spec ~/rpmbuild/SPECS/
+          mv package/ReadMe.md
+          
+          echo "~/BUILD/"
+          ls ~/BUILD/
+          echo "~/BUILD/bot"
+          ls ~/BUILD/bot
+      
+      - name: RPM Build
+        run: |
+           rpmbuild -bb ~/rpmbuild/SPECS/build.spec
+           ls ~/rpmbuild/RPMS/x86_64
 
       - name: Publish artifacts
         uses: actions/upload-artifact@v2
