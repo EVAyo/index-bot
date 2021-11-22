@@ -28,13 +28,15 @@ jobs:
           chmod +x gradlew
           ./gradlew bootJar
 
+      # 下载资源文件
+      # java: https://cloud.scomarlf.com/s/g0UW?path=%2F
       - name: Download resource
         run: |
           mkdir resource
           cd resource
           curl -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.15.2-linux-x86_64.tar.gz
           curl -O https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.15.2/elasticsearch-analysis-ik-7.15.2.zip
-          curl -O https://cloud.scomarlf.com/api/v3/file/download/2mM83NmzjtdVetKg?sign=DVRtoH0gYfGAvridR9lHLt4DLhJNjhteI-W3On4jhdE%3D%3A1637573022
+          wget https://cloud.scomarlf.com/api/v3/file/get/88/jdk-11.0.12_linux-x64_bin.tar.gz?sign=qPVwbwDWfM7TNCmZa3Qt9pimJ6dtFaitkn-T2yOgIUA%3D%3A0 --no-check-certificate -O ./java11.tar.gz
           ls
 
       - name: Move files
