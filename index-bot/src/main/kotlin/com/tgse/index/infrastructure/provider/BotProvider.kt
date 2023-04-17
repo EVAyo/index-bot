@@ -170,6 +170,10 @@ class BotProvider(
         return bot.execute(action)
     }
 
+    fun send(action: GetChatMember): GetChatMemberResponse {
+        return bot.execute(action)
+    }
+
     fun sendTyping(chatId: Long) {
         val chatAction = SendChatAction(chatId, ChatAction.typing)
         send(chatAction)

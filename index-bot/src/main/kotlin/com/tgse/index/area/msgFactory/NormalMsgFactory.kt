@@ -31,17 +31,11 @@ class NormalMsgFactory(
 
     fun makeStatisticsDailyReplyMsg(
         chatId: Long,
-        dailyIncreaseOfUser: Long,
-        dailyActiveOfUser: Long,
-        countOfUser: Long,
         countOfRecord: Long
     ): SendMessage {
         return SendMessage(
             chatId,
             replyService.messages["statistics-daily"]!!
-                .replace("\\{dailyIncreaseOfUser\\}".toRegex(), dailyIncreaseOfUser.toString())
-                .replace("\\{dailyActiveOfUser\\}".toRegex(), dailyActiveOfUser.toString())
-                .replace("\\{countOfUser\\}".toRegex(), countOfUser.toString())
                 .replace("\\{countOfRecord\\}".toRegex(), countOfRecord.toString())
         ).parseMode(ParseMode.HTML)
     }

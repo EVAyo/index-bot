@@ -53,10 +53,18 @@ class Private(
                     if (request !is RequestService.BotPrivateRequest) return@subscribe
                     // 输入状态
                     botProvider.sendTyping(request.chatId)
+                    // 仅关注频道的用户可以使用 BOT
+                    val textMessage = request.update.message()?.text()
+                    val subscribed = telegramService.subscribered(request.chatId)
+                    if (textMessage != "/start" && !subscribed) {
+                        val sendMessage = normalMsgFactory.makeReplyMsg(request.chatId, "need-subscriber")
+                        botProvider.send(sendMessage)
+                        return@subscribe
+                    }
                     // 回执
                     when {
                         request.update.callbackQuery() != null -> executeByButton(request)
-                        request.update.message().text().startsWith("/") -> executeByCommand(request)
+                        textMessage!!.startsWith("/") -> executeByCommand(request)
                         awaitStatusService.getAwaitStatus(request.chatId) != null -> {
                             try {
                                 val callbackData = awaitStatusService.getAwaitStatus(request.chatId)!!.callbackData
@@ -70,8 +78,8 @@ class Private(
                                 awaitStatusService.clearAwaitStatus(request.chatId)
                             }
                         }
-                        request.update.message().text().startsWith("@") -> executeByEnroll(request)
-                        request.update.message().text().startsWith("https://t.me/") -> executeByEnroll(request)
+                        textMessage!!.startsWith("@") -> executeByEnroll(request)
+                        textMessage!!.startsWith("https://t.me/") -> executeByEnroll(request)
                         else -> executeByText(request)
                     }
                 } catch (e: Throwable) {
@@ -79,8 +87,8 @@ class Private(
                     e.printStackTrace()
                 } finally {
                     // 记录日活用户
-                    val user = request.update.message()?.from()
-                    if (user != null) footprint(user)
+                    // val user = request.update.message()?.from()
+                    // if (user != null) footprint(user)
                 }
             },
             { throwable ->

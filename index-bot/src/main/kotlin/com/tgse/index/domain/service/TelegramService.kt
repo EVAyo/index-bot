@@ -1,6 +1,8 @@
 package com.tgse.index.domain.service
 
 import com.tgse.index.domain.repository.TelegramRepository
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
 
 @Service
@@ -63,6 +65,10 @@ class TelegramService(
      */
     fun getTelegramMod(id: Long): TelegramGroup? {
         return telegramRepository.getTelegramMod(id)
+    }
+
+    fun subscribered(userId: Long): Boolean {
+        return telegramRepository.subscribered(userId)
     }
 
 }

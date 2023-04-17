@@ -15,6 +15,8 @@ interface TelegramRepository {
      */
     fun getTelegramMod(id: Long): TelegramService.TelegramGroup?
 
+    fun subscribered(userId: Long): Boolean
+
 }
 
 fun User.nick(): String {

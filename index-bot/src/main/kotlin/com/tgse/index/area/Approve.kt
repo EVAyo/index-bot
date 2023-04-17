@@ -25,7 +25,6 @@ class Approve(
     private val banListService: BanListService,
     private val enrollService: EnrollService,
     private val recordService: RecordService,
-    private val userService: UserService,
     private val awaitStatusService: AwaitStatusService,
     private val normalMsgFactory: NormalMsgFactory,
     private val recordMsgFactory: RecordMsgFactory,
@@ -236,14 +235,10 @@ class Approve(
 
     @Scheduled(zone = "Asia/Shanghai", cron = "0 0 8 * * ?")
     private fun statisticsDaily() {
-        val (userCount, dailyIncrease, dailyActive) = userService.statistics()
         val recordCount = recordService.count()
 
         val msg = normalMsgFactory.makeStatisticsDailyReplyMsg(
             approveGroupChatId,
-            dailyIncrease,
-            dailyActive,
-            userCount,
             recordCount
         )
         botProvider.send(msg)

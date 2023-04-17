@@ -17,6 +17,7 @@ class ReplyRepositoryImpl : ReplyRepository {
     init {
         // 读取xml文件内容
         val reader = SAXReader()
+        reader.encoding = "UTF-8"
         val doc: Document = reader.read(File("lang/reply.xml"))
         val root: Element = doc.rootElement
         val it: Iterator<Element> = root.elementIterator()

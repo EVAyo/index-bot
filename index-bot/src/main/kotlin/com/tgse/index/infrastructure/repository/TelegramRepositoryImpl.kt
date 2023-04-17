@@ -2,7 +2,9 @@ package com.tgse.index.infrastructure.repository
 
 import com.pengrad.telegrambot.TelegramBot
 import com.pengrad.telegrambot.model.Chat
+import com.pengrad.telegrambot.model.ChatMember
 import com.pengrad.telegrambot.request.GetChat
+import com.pengrad.telegrambot.request.GetChatMember
 import com.pengrad.telegrambot.request.GetChatMemberCount
 import com.tgse.index.ProxyProperties
 import com.tgse.index.domain.repository.TelegramRepository
@@ -21,7 +23,9 @@ class TelegramRepositoryImpl(
     private val proxyProperties: ProxyProperties,
     private val botProvider: BotProvider,
     @Value("\${secretary.poppy-bot}")
-    private val poppyTokens: List<String>
+    private val poppyTokens: List<String>,
+    @Value("\${channel.bulletin.id}")
+    private val bulletinChatId: Long
 ) : TelegramRepository {
 
     private val tooManyRequestRegex = """^Too Many Requests:.*""".toRegex()
@@ -88,6 +92,7 @@ class TelegramRepositoryImpl(
                             chat.description(),
                             membersCount.toLong()
                         )
+
                     Chat.Type.channel ->
                         TelegramService.TelegramChannel(
                             username,
@@ -95,6 +100,7 @@ class TelegramRepositoryImpl(
                             chat.description(),
                             membersCount.toLong()
                         )
+
                     else -> null
                 }
             }
@@ -122,6 +128,12 @@ class TelegramRepositoryImpl(
             logger.error("get telegram info error,the telegram chatId is '$id'", t)
             null
         }
+    }
+
+    override fun subscribered(userId: Long): Boolean {
+        val getChat = GetChatMember(bulletinChatId, userId)
+        val member = botProvider.send(getChat).chatMember()
+        return member.status() != ChatMember.Status.left
     }
 
 }

@@ -57,6 +57,7 @@ class ClassificationRepositoryImpl : ClassificationRepository {
 
     private fun read() {
         val reader = SAXReader()
+        reader.encoding = "UTF-8"
         val doc: Document = reader.read(path.toFile())
         val root: Element = doc.rootElement
         val it: Iterator<Element> = root.elementIterator()
