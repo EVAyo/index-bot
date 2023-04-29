@@ -33,11 +33,13 @@ class EnrollService(
         val approve: Boolean?
     )
 
+    data class ApproveResult(val enroll: Enroll, val user: User, val isPassed: Boolean, val reason: String?)
+
     private val submitEnrollSubject = BehaviorSubject.create<Enroll>()
     val submitEnrollObservable: Observable<Enroll> = submitEnrollSubject.distinct()
 
-    private val submitApproveSubject = BehaviorSubject.create<Triple<Enroll, User, Boolean>>()
-    val submitApproveObservable: Observable<Triple<Enroll, User, Boolean>> = submitApproveSubject.distinct()
+    private val submitApproveSubject = BehaviorSubject.create<ApproveResult>()
+    val submitApproveObservable: Observable<ApproveResult> = submitApproveSubject.distinct()
 
     fun searchEnrolls(user: User, from: Int, size: Int): Pair<MutableList<Enroll>, Long> {
         return enrollRepository.searchEnrolls(user, from, size)
@@ -67,12 +69,12 @@ class EnrollService(
         submitEnrollSubject.onNext(newEnroll)
     }
 
-    fun approveEnroll(uuid: String, manager: User, isPassed: Boolean) {
+    fun approveEnroll(uuid: String, manager: User, isPassed: Boolean, reason: String? = null) {
         val enroll = getEnroll(uuid)!!
         val newEnroll = enroll.copy(approve = isPassed)
         updateEnroll(newEnroll)
-        val triple = Triple(newEnroll, manager, isPassed)
-        submitApproveSubject.onNext(triple)
+        val result = ApproveResult(newEnroll, manager, isPassed, reason)
+        submitApproveSubject.onNext(result)
     }
 
     fun getSubmittedEnrollByUsername(username: String): Enroll? {

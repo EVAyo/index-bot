@@ -33,7 +33,6 @@ class Private(
     private val listMsgFactory: ListMsgFactory,
     private val enrollService: EnrollService,
     private val recordService: RecordService,
-    private val userService: UserService,
     private val blackListService: BlackListService,
     private val telegramService: TelegramService,
     private val awaitStatusService: AwaitStatusService
@@ -104,9 +103,9 @@ class Private(
 
     private fun subscribeApprove() {
         enrollService.submitApproveObservable.subscribe(
-            { (enroll, manager, isPassed) ->
+            { approveResult ->
                 try {
-                    val msg = recordMsgFactory.makeApproveResultMsg(enroll.createUser, enroll, isPassed)
+                    val msg = recordMsgFactory.makeApproveResultMsg(approveResult.enroll.createUser, approveResult.enroll, approveResult.isPassed, approveResult.reason)
                     botProvider.send(msg)
                 } catch (e: Throwable) {
                     botProvider.sendErrorMessage(e)
@@ -295,14 +294,6 @@ class Private(
                 val msg = normalMsgFactory.makeReplyMsg(request.chatId!!, "feedback-finish")
                 botProvider.send(msg)
             }
-        }
-    }
-
-    private fun footprint(user: User) {
-        try {
-            userService.footprint(user.id().toLong())
-        } catch (e: Throwable) {
-            logger.warn("记录足迹失败：(${e::class.java})[${e.message}]")
         }
     }
 

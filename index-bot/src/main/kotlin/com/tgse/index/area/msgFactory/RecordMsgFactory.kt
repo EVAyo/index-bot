@@ -57,21 +57,33 @@ class RecordMsgFactory(
         return msg.parseMode(ParseMode.HTML).disableWebPagePreview(true).replyMarkup(keyboard)
     }
 
+    fun makeApproveFailReasonSelectMsg(
+        chatId: Long,
+        enroll: EnrollService.Enroll,
+        manager: User,
+    ): SendMessage {
+        val detail = makeApproveResultDetail(enroll, manager, false, null)
+        val keyboard = makeFailReasonKeyboardMarkup(enroll)
+        val msg = SendMessage(chatId, detail)
+        return msg.parseMode(ParseMode.HTML).disableWebPagePreview(true).replyMarkup(keyboard)
+    }
+
     fun makeApproveResultMsg(
         chatId: Long,
         enroll: EnrollService.Enroll,
         manager: User,
-        isPassed: Boolean
+        isPassed: Boolean,
+        reason: String?,
     ): SendMessage {
-        val detail = makeApproveResultDetail(enroll, manager, isPassed)
+        val detail = makeApproveResultDetail(enroll, manager, isPassed, reason)
         val keyboard = makeJoinBlacklistKeyboardMarkup(enroll)
         val msg = SendMessage(chatId, detail)
         return if (isPassed) msg.parseMode(ParseMode.HTML).disableWebPagePreview(true)
         else msg.parseMode(ParseMode.HTML).disableWebPagePreview(true).replyMarkup(keyboard)
     }
 
-    fun makeApproveResultMsg(chatId: Long, enroll: EnrollService.Enroll, isPassed: Boolean): SendMessage {
-        val detail = makeApproveResultDetail(enroll, isPassed)
+    fun makeApproveResultMsg(chatId: Long, enroll: EnrollService.Enroll, isPassed: Boolean, reason: String?): SendMessage {
+        val detail = makeApproveResultDetail(enroll, isPassed, reason)
         val msg = SendMessage(chatId, detail)
         return msg.parseMode(ParseMode.HTML).disableWebPagePreview(true)
     }
@@ -98,18 +110,32 @@ class RecordMsgFactory(
         return makeRecordDetail(enroll) + "\n<b>提交者</b>： ${enroll.createUserNick}\n"
     }
 
-    private fun makeApproveResultDetail(enroll: EnrollService.Enroll, checker: User, isPassed: Boolean): String {
+    private fun makeApproveResultDetail(enroll: EnrollService.Enroll, checker: User, isPassed: Boolean, reason: String?): String {
         val result = if (isPassed) "通过" else "未通过"
-        return makeRecordDetail(enroll) +
-                "\n<b>提交者</b>： ${enroll.createUserNick}" +
-                "\n<b>审核者</b>： ${checker.nick()}" +
-                "\n<b>审核结果</b>： $result\n"
+        return if (reason == null) {
+            makeRecordDetail(enroll) +
+                    "\n<b>提交者</b>： ${enroll.createUserNick}" +
+                    "\n<b>审核者</b>： ${checker.nick()}" +
+                    "\n<b>审核结果</b>： $result\n"
+        } else {
+            makeRecordDetail(enroll) +
+                    "\n<b>提交者</b>： ${enroll.createUserNick}" +
+                    "\n<b>审核者</b>： ${checker.nick()}" +
+                    "\n<b>审核结果</b>： $result" +
+                    "\n<b>原因</b>： $reason\n"
+        }
     }
 
-    private fun makeApproveResultDetail(enroll: EnrollService.Enroll, isPassed: Boolean): String {
+    private fun makeApproveResultDetail(enroll: EnrollService.Enroll, isPassed: Boolean, reason: String?): String {
         val result = if (isPassed) "通过" else "未通过"
-        return makeRecordDetail(enroll) +
-                "\n<b>审核结果</b>： $result\n"
+        return if (reason == null) {
+            makeRecordDetail(enroll) +
+                    "\n<b>审核结果</b>： $result\n"
+        } else {
+            makeRecordDetail(enroll) +
+                    "\n<b>审核结果</b>： $result" +
+                    "\n<b>原因</b>： $reason\n"
+        }
     }
 
     private fun makeInlineKeyboardMarkup(id: String, oper: String): InlineKeyboardMarkup {
@@ -165,6 +191,53 @@ class RecordMsgFactory(
                 run {
                     val callbackData = "blacklist:join&${BlackListService.BlackType.User}&${enroll.uuid}"
                     InlineKeyboardButton("将提交者加入黑名单").callbackData(callbackData)
+                }
+            )
+        )
+    }
+
+    private fun makeFailReasonKeyboardMarkup(enroll: EnrollService.Enroll): InlineKeyboardMarkup {
+        return InlineKeyboardMarkup(
+            arrayOf(
+                run {
+                    val callbackData = "approve:fail-reason&${enroll.uuid}&require"
+                    InlineKeyboardButton("收录标准未达标").callbackData(callbackData)
+                }
+            ),
+            arrayOf(
+                run {
+                    val callbackData = "approve:fail-reason&${enroll.uuid}&detail"
+                    InlineKeyboardButton("信息缺失或不准确").callbackData(callbackData)
+                }
+            ),
+            arrayOf(
+                run {
+                    val callbackData = "approve:fail-reason&${enroll.uuid}&black"
+                    InlineKeyboardButton("涉及黑灰产").callbackData(callbackData)
+                }
+            ),
+            arrayOf(
+                run {
+                    val callbackData = "approve:fail-reason&${enroll.uuid}&nsfw"
+                    InlineKeyboardButton("暂不收录 NSFW").callbackData(callbackData)
+                }
+            ),
+            arrayOf(
+                run {
+                    val callbackData = "approve:fail-reason&${enroll.uuid}&type"
+                    InlineKeyboardButton("不支持收录的类型").callbackData(callbackData)
+                }
+            ),
+            arrayOf(
+                run {
+                    val callbackData = "approve:fail-reason&${enroll.uuid}&other"
+                    InlineKeyboardButton("其他情况").callbackData(callbackData)
+                }
+            ),
+            arrayOf(
+                run {
+                    val callbackData = "approve:fail-reason&${enroll.uuid}&back"
+                    InlineKeyboardButton("返回上一步").callbackData(callbackData)
                 }
             )
         )

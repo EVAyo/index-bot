@@ -132,10 +132,10 @@ class Approve(
 
     private fun subscribeApproveEnroll() {
         enrollService.submitApproveObservable.subscribe(
-            { (enroll, manager, isPassed) ->
-                val msg = recordMsgFactory.makeApproveResultMsg(approveGroupChatId, enroll, manager, isPassed)
+            { approveResult ->
+                val msg = recordMsgFactory.makeApproveResultMsg(approveGroupChatId, approveResult.enroll, approveResult.user, approveResult.isPassed, approveResult.reason)
                 val msgResponse = botProvider.send(msg)
-                if (isPassed) return@subscribe
+                if (approveResult.isPassed) return@subscribe
                 val editMsg = normalMsgFactory.makeClearMarkupMsg(approveGroupChatId, msgResponse.message().messageId())
                 botProvider.sendDelay(editMsg, autoDeleteMsgCycle * 1000)
             },
