@@ -9,29 +9,29 @@ logging:
 # bot
 bot:
   creator: 5006320370
-  token: 1241547485:AAE_uXL9w98U-NI5YbsOzEB-al0k1xKtU3A
+  token: 6097531887:AAGDY2CcBSMrFprKpl7EB0UJM93-GzxyRjI
 
 # elasticsearch
 elastic:
-  hostname: 10.100.10.17
+  hostname: 127.0.0.1
   schema: http
   port: 9900
 
 # 代理
 proxy:
-  ip: 127.0.0.1
-  port: 7890
   enabled: true
   type: SOCKS
+  ip: 127.0.0.1
+  port: 7890
 
 # 索引公告频道id
 channel:
   bulletin:
-    id: -1001147972019
+    id: -1001707221406
 # 审核群组id
 group:
   approve:
-    id: -1001733407259
+    id: -1001153444411
 secretary:
   # 群组中BOT消息自销毁周期
   # 单位：秒
@@ -53,7 +53,7 @@ secretary:
     2021973345:AAHA6V91BwOfDMDnKnHeH4HzwjvgwrXwNxI,
     2078724060:AAFK6ee1NEMc-RokMkFazojyrgvrBpRXLF8,
     1913773538:AAHVV-9RDHvdtaDL7zKF0rfdK-9dD-XJmzE,
-    1995573135:AAFYD7aZAiFRYHfLHfaUB0u9zA0HnGVo7hY,:
+    1995573135:AAFYD7aZAiFRYHfLHfaUB0u9zA0HnGVo7hY,
     1986552287:AAHfYRHeog51A1gtBgWRUQTgJgLzRGENDrg,
     1990812021:AAHyW8xkU6T1-eyQo_k2Y_MmhOFezulJ_ns,
     1977545956:AAGJosRLA894GYsGQoDyqXiW1q3hpTFeB3U,

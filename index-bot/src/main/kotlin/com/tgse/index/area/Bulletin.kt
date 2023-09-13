@@ -30,11 +30,17 @@ class Bulletin(
      * 发布公告
      */
     fun publish(record: RecordService.Record) {
-        val msg = bulletinMsgFactory.makeBulletinMsg(bulletinChatId, record)
-        val response = botProvider.send(msg)
-        // 补充公告消息ID
-        val newRecord = record.copy(bulletinMessageId = response.message().messageId())
-        recordService.addRecord(newRecord)
+        // NSFW 不发布公告
+        if (record.classification == "NSFW") {
+            val newRecord = record.copy(bulletinMessageId = 0)
+            recordService.addRecord(newRecord)
+        } else {
+            val msg = bulletinMsgFactory.makeBulletinMsg(bulletinChatId, record)
+            val response = botProvider.send(msg)
+            // 补充公告消息ID
+            val newRecord = record.copy(bulletinMessageId = response.message().messageId())
+            recordService.addRecord(newRecord)
+        }
     }
 
     /**
@@ -44,6 +50,8 @@ class Bulletin(
         recordService.updateRecordObservable.subscribe(
             { record ->
                 try {
+                    // NSFW 不发布公告
+                    if (record.classification == "NSFW") return@subscribe
                     val msg = bulletinMsgFactory.makeBulletinMsg(bulletinChatId, record.bulletinMessageId!!, record)
                     botProvider.send(msg)
                 } catch (e: Throwable) {
@@ -67,6 +75,8 @@ class Bulletin(
         recordService.deleteRecordObservable.subscribe(
             { (record, _) ->
                 try {
+                    // NSFW 不发布公告
+                    if (record.classification == "NSFW") return@subscribe
                     val msg = bulletinMsgFactory.makeRemovedBulletinMsg(bulletinChatId, record.bulletinMessageId!!)
                     botProvider.send(msg)
                 } catch (e: Throwable) {
