@@ -159,55 +159,62 @@ class Private(
             return
         }
         // 回执
-        val sendMessage = when (telegramMod) {
-            is TelegramService.TelegramGroup -> {
-                normalMsgFactory.makeReplyMsg(request.chatId, "enroll-need-join-group")
+        val sendMessage = if ( telegramMod != null && telegramMod.title.contains("""(2345|人设|看图王|作图|网银)""".toRegex())){
+            SendMessage(
+                request.chatId,
+                "不支持收录此类型的群组或频道。"
+            ).disableWebPagePreview(false)
+        } else {
+            when (telegramMod) {
+                is TelegramService.TelegramGroup -> {
+                    normalMsgFactory.makeReplyMsg(request.chatId, "enroll-need-join-group")
+                }
+                is TelegramService.TelegramChannel -> {
+                    val enroll = EnrollService.Enroll(
+                        UUID.randomUUID().toString(),
+                        TelegramService.TelegramModType.Channel,
+                        null,
+                        telegramMod.title,
+                        telegramMod.description,
+                        null,
+                        null,
+                        telegramMod.username,
+                        null,
+                        telegramMod.members,
+                        Date().time,
+                        request.chatId,
+                        request.update.message().from().nick(),
+                        false,
+                        null
+                    )
+                    val createEnroll = enrollService.addEnroll(enroll)
+                    if (!createEnroll) return
+                    recordMsgFactory.makeEnrollMsg(request.chatId, enroll)
+                }
+                is TelegramService.TelegramBot -> {
+                    val enroll = EnrollService.Enroll(
+                        UUID.randomUUID().toString(),
+                        TelegramService.TelegramModType.Bot,
+                        null,
+                        telegramMod.title,
+                        telegramMod.description,
+                        null,
+                        null,
+                        telegramMod.username,
+                        null,
+                        null,
+                        Date().time,
+                        request.chatId,
+                        request.update.message().from().nick(),
+                        false,
+                        null
+                    )
+                    val createEnroll = enrollService.addEnroll(enroll)
+                    if (!createEnroll) return
+                    recordMsgFactory.makeEnrollMsg(request.chatId, enroll)
+                }
+                else -> normalMsgFactory.makeReplyMsg(request.chatId, "nothing")
             }
-            is TelegramService.TelegramChannel -> {
-                val enroll = EnrollService.Enroll(
-                    UUID.randomUUID().toString(),
-                    TelegramService.TelegramModType.Channel,
-                    null,
-                    telegramMod.title,
-                    telegramMod.description,
-                    null,
-                    null,
-                    telegramMod.username,
-                    null,
-                    telegramMod.members,
-                    Date().time,
-                    request.chatId,
-                    request.update.message().from().nick(),
-                    false,
-                    null
-                )
-                val createEnroll = enrollService.addEnroll(enroll)
-                if (!createEnroll) return
-                recordMsgFactory.makeEnrollMsg(request.chatId, enroll)
-            }
-            is TelegramService.TelegramBot -> {
-                val enroll = EnrollService.Enroll(
-                    UUID.randomUUID().toString(),
-                    TelegramService.TelegramModType.Bot,
-                    null,
-                    telegramMod.title,
-                    telegramMod.description,
-                    null,
-                    null,
-                    telegramMod.username,
-                    null,
-                    null,
-                    Date().time,
-                    request.chatId,
-                    request.update.message().from().nick(),
-                    false,
-                    null
-                )
-                val createEnroll = enrollService.addEnroll(enroll)
-                if (!createEnroll) return
-                recordMsgFactory.makeEnrollMsg(request.chatId, enroll)
-            }
-            else -> normalMsgFactory.makeReplyMsg(request.chatId, "nothing")
         }
         sendMessage.disableWebPagePreview(true)
         sendMessage.parseMode(ParseMode.HTML)

@@ -218,12 +218,6 @@ class RecordMsgFactory(
             ),
             arrayOf(
                 run {
-                    val callbackData = "approve:fail-reason&${enroll.uuid}&nsfw"
-                    InlineKeyboardButton("暂不收录 NSFW").callbackData(callbackData)
-                }
-            ),
-            arrayOf(
-                run {
                     val callbackData = "approve:fail-reason&${enroll.uuid}&type"
                     InlineKeyboardButton("不支持收录的类型").callbackData(callbackData)
                 }
